@@ -22,8 +22,9 @@
 
 import pytest
 import config as cf
-from Sorting import shellsort as sort
+from Sorting import insertionsort as sort
 from DataStructures import listiterator as it
+from DataStructures import singlelinkedlist as slt
 from ADT import list as lt
 import csv
 from time import process_time 
@@ -87,28 +88,29 @@ def greater(element1, element2, column=columna):
 def test_sort(criteria):
     """
     Lista con elementos en orden aleatorio
-     Args:
+    Args:
         criteria
-              Critero para ordenar (less o greater)       
+              Critero para ordenar (less o greater)  
     """
     print("sorting ....")
-    lst_movies = loadCSVFile(moviesfile) 
-    t1_start = process_time() #tiempo inicial     
-    sort.shellSort(lst_movies, criteria)
+    lst_movies = loadCSVFile(moviesfile)
+    t1_start = process_time() #tiempo inicial
+    sort.insertionSort(lst_movies, criteria)
     t1_stop = process_time() #tiempo final
     print("Tiempo de ejecución ",t1_stop-t1_start," segundos")    
-    
+
+
 def test_loading_CSV_y_ordenamiento():
     """
     Prueba que se pueda leer el archivo y que despues de relizar el sort, el orden este correcto
     """
     setUp()
-    sort.shellSort(lst_movies,less)
+    sort.insertionSort(lst_movies,less)
     while not (lt.isEmpty(lst_movies)):
         x = float(lt.removeLast(lst_movies)['vote_average'])
         if not (lt.isEmpty(lst_movies)):
             y = float(lt.lastElement(lst_movies)['vote_average'])
         else:
             break
-        assert x >= y
-## test_loading_CSV_y_ordenamiento()        
+        assert x >= y       
+##test_loading_CSV_y_ordenamiento()

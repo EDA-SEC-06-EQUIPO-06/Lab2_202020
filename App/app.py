@@ -29,8 +29,12 @@
 import config as cf
 import sys
 import csv
-from Sorting import selectionsort as sort
 from ADT import list as lt
+from Sorting import insertionsort   
+from Sorting import mergesort  
+from Sorting import quicksort   
+from Sorting import selectionsort  
+from Sorting import shellsort 
 from DataStructures import listiterator as it
 from DataStructures import liststructure as lt
 
@@ -50,7 +54,7 @@ def loadCSVFile (file, sep=";"):
         Borra la lista e informa al usuario
     Returns: None  
     """
-    #lst = lt.newList("ARRAY_LIST") #Usando implementacion arraylist
+    #lst = lt.newList("SINGLE_LINKED") #Usando implementacion linkedlist
     lst = lt.newList("ARRAY_LIST") #Usando implementacion linkedlist
     print("Cargando archivo ....")
     t1_start = process_time() #tiempo inicial
@@ -77,6 +81,8 @@ def printMenu():
     print("2- Contar los elementos de la Lista")
     print("3- Contar elementos filtrados por palabra clave")
     print("4- Consultar elementos a partir de dos listas")
+    print("5- Ordenar una lista por su calificación promedio o cantidad de votos")
+    print("6- Conocer el trabajo de un director")
     print("0- Salir")
 
 def countElementsFilteredByColumn(criteria, column, lst):
@@ -108,20 +114,12 @@ def countElementsFilteredByColumn(criteria, column, lst):
         print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
     return counter
 
-def countElementsByCriteria(criteria, column, lst):
-    """
-    Retorna la cantidad de elementos que cumplen con un criterio para una columna dada
-    """
-    return 0
-
-
-
-def orderElementsByCriteria(function, column, lst, criteria, elements):
+def orderElementsByCriteria(function, lst, criteria, elements):
     """
     Retorna el ranking de películas con base en los parámetros
      Args:
         function
-        Función de ordenamiento que se va a usar
+            Función de ordenamiento que se va a usar
         column:: str
             Columna que se usa para realiza el ordenamiento (vote_average o vote_count)   
         lst
@@ -134,28 +132,28 @@ def orderElementsByCriteria(function, column, lst, criteria, elements):
         counter :: int
             la cantidad de veces ue aparece un elemento con el criterio definido
     """
-    def less(element1, element2): # Agregué "column" para poder escoger, por ejemplo, entre vote_average y vote_count
-        if float(element1[column]) < float(element2[column]):
-           return True
-        return False
-    def greater(element1, element2):
-        if float(element1[column]) > float(element2[column]):
-           return True
-        return False  
-    sort.selectionSort(lst, less)
+    t1_start = process_time() #tiempo inicial
+    if function == "selectionsort":
+       selectionsort.selectionSort(lst, criteria)
+    if function == "insertionsort":
+       insertionsort.insertionSort(lst, criteria)
+    if function == "mergesort":
+       mergesort.mergesort(lst, criteria)
+    if function == "quicksort":
+       quicksort.quickSort(lst, criteria)
+    if function == "shellsort":
+       shellsort.shellSort(lst, criteria)
     i = 0
     ordenado = []
     while i < elements:
+       i += 1
        pelicula = lt.getElement(lst,i)
        ordenado.append(pelicula)
-       i += 1
-    print(len(ordenado))
+    t1_stop = process_time() #tiempo final
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")       
     return ordenado
-lst = loadCSVFile("Data/theMoviesdb/SmallMoviesDetailsCleaned.csv")
-lista = orderElementsByCriteria("selectionSort", "vote_average", lst, "less", 10)
-print(lista)
 
-def numero_peliculas(director,datos):
+def countElementsByCriteria(director,datos):
     r=0
     numero_peliculas=0
     lista=[]
@@ -196,7 +194,6 @@ def main():
         if len(inputs)>0:
             if int(inputs[0])==1: #opcion 1
                 lista = loadCSVFile("Data/theMoviesdb/SmallMoviesDetailsCleaned.csv") #llamar funcion cargar datos
-                print(lista)
                 print("Datos cargados, ",lista['size']," elementos cargados")
             elif int(inputs[0])==2: #opcion 2
                 if lista==None or lista['size']==0: #obtener la longitud de la lista
@@ -216,12 +213,36 @@ def main():
                     criteria =input('Ingrese el criterio de búsqueda\n')
                     counter=countElementsByCriteria(criteria,0,lista)
                     print("Coinciden ",counter," elementos con el crtierio: '", criteria ,"' (en construcción ...)")
+            elif int(inputs[0])==5:
+                if lista==None or lista['size']==0: #obtener la longitud de la lista
+                    print("La lista esta vacía")
+                else:   
+                    print("Hay 5 algoritmos de ordenamiento: \ninsertionsort\nmergesort\nquicksort\nselectionsort\nshellsort")    
+                    ## Pide los parámetros al usuario
+                    algoritmo = input("Escriba el algoritmo de ordenamiento que desee usar: ")
+                    columna = input("Escriba la columna a utilizar (vote_average o vote_count): ")  
+                    criteria = input("Escriba el criterio a utilizar (less o greater): ") 
+                    elements = int(input("¿Cuántas películas quiere ver en el ranking?: "))
+                    def less(element1, element2, column=columna): # Agregué "column" para poder escoger, por ejemplo, entre vote_average y vote_count
+                        if float(element1[column]) < float(element2[column]):
+                           return True
+                        return False
+                    def greater(element1, element2,column=columna):
+                        if float(element1[column]) > float(element2[column]):
+                           return True
+                        return False  
+                    if criteria == "less":
+                       lista = orderElementsByCriteria(algoritmo, lista, less, elements)
+                    elif criteria == "greater":
+                       lista = orderElementsByCriteria(algoritmo, lista, greater, elements)
+                    print("Películas ordenadas: \n")   
+                    print(lista)    
             elif int(inputs[0])==6:
-                print("que director quieres saber mas")
+                print("Escriba el director")
                 t=input()
                 u=loadCSVFile("Data/theMoviesdb/MoviesCastingRaw-small.csv")
                 p=u["elements"]
-                e=numero_peliculas(t,p)
+                e=countElementsByCriteria(t,p)
                 o=loadCSVFile("Data/theMoviesdb/SmallMoviesDetailsCleaned.csv")
                 y=o["elements"]
                 w=votos_media(e[2],y)

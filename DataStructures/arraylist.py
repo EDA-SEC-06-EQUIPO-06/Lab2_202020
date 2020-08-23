@@ -365,4 +365,7 @@ def subList (lst, pos, numelem):
     except Exception as exp:
         error.reraise (exp, 'arraylist->subList: ')
 
+lst = newList()
+sublst = {'elements':[], 'size':0, 'type':'ARRAY_LIST', 'cmpfunction':lst['cmpfunction'] }
+print(sublst)
 

@@ -18,14 +18,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  """
+"""
+ * Copyright 2020, Departamento de sistemas y Computación, Universidad de Los Andes
+ * 
+ *
+ * Desarrolado para el curso ISIS1225 - Estructuras de Datos y Algoritmos
+ *
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ """
 
 import pytest 
 import config 
 import csv
 from time import process_time 
-from DataStructures import singlelinkedlist as slt
-
-
+from DataStructures import arraylist as slt
 
 def loadCSVFile (file, sep=";"):
     """
@@ -42,9 +60,9 @@ def loadCSVFile (file, sep=";"):
     """
     lst = slt.newList() 
     print("Cargando archivo ....")
-    t1_start = process_time() #tiempo inicial
     dialect = csv.excel()
     dialect.delimiter=sep
+    t1_start = process_time() #tiempo inicial
     try:
         with open(file, encoding="utf-8") as csvfile:
             spamreader = csv.DictReader(csvfile, dialect=dialect)
@@ -53,13 +71,13 @@ def loadCSVFile (file, sep=";"):
     except:
         print("Hubo un error con la carga del archivo")
     t1_stop = process_time() #tiempo final
-    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
+    print("Tiempo de ejecución ",t1_stop-t1_start," segundos")    
     return lst
 
-def test_singlelinkedmovies ():
+def test_arraymovies ():
     """
-    Carga las películas con la función LoadCSVFile y verifica que la lista enlazada creada no esté vacía.
+    Carga las películas con la función LoadCSVFile y verifica que la lista creada no esté vacía.
     """
     movies = loadCSVFile("Data/theMoviesdb/AllMoviesDetailsCleaned.csv")
     assert slt.isEmpty(movies) == False
-
+#test_arraymovies()    
