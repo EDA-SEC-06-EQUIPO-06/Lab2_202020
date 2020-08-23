@@ -32,6 +32,7 @@ import csv
 from ADT import list as lt
 from DataStructures import listiterator as it
 from DataStructures import liststructure as lt
+
 from time import process_time 
 
 
@@ -49,7 +50,7 @@ def loadCSVFile (file, sep=";"):
     Returns: None  
     """
     #lst = lt.newList("ARRAY_LIST") #Usando implementacion arraylist
-    lst = lt.newList() #Usando implementacion linkedlist
+    lst = lt.newList("ARRAY_LIST") #Usando implementacion linkedlist
     print("Cargando archivo ....")
     t1_start = process_time() #tiempo inicial
     dialect = csv.excel()
@@ -74,9 +75,7 @@ def printMenu():
     print("1- Cargar Datos")
     print("2- Contar los elementos de la Lista")
     print("3- Contar elementos filtrados por palabra clave")
-    print("4- encontrar buenas peliculas")
-    print("5- ranking de peliculas")
-    print("6- conocer a un director")
+    print("4- Consultar elementos a partir de dos listas")
     print("0- Salir")
 
 def countElementsFilteredByColumn(criteria, column, lst):
@@ -108,45 +107,33 @@ def countElementsFilteredByColumn(criteria, column, lst):
         print("Tiempo de ejecución ",t1_stop-t1_start," segundos")
     return counter
 
-def countElementsByCriteria(criteria, column, lista_cast, lista_detalles):
-
-    """
-    Retorna la cantidad de elementos que cumplen con un criterio para una columna dada
-    """
-    if len(lista_cast)==0 or len(lista_detalles) == 0:
-        print("La(s) lista(s) esta(n) vacía(s)")  
-        return 0
-    else:
-        t1_start = process_time() #tiempo inicial
-        counter=0 #Cantidad de repeticiones
-        ids = []
-        for element in lista_cast:
-            if criteria.lower() in element["director_name"].lower(): #filtrar por palabra clave 
-               id_n = element.get("id")
-               if id_n == None:
-                  id_n = element.get("\ufeffid") # Si el id sale con estos caracteres la función igual estaría bien
-               ids.append(id_n)
-        suma_calificaciones = 0       
-        for element in lista_detalles:
-            element_id = element.get("id")
-            if element_id == None:
-               element_id = element.get("\ufeffid")
-            if element_id in ids and float(element[column]) >= 6:
-               counter +=1 
-               suma_calificaciones += float(element[column])
-        t1_stop = process_time() #tiempo final
-        if counter == 0:
-           promedio = 0 
-        else:
-            promedio = suma_calificaciones / counter
-        print("Tiempo de ejecución ",t1_stop-t1_start," segundos")    
-    return counter, promedio 
-
-def orderElementsByCriteria(function, column, lst, elements):
-    """
-    Retorna una lista con cierta cantidad de elementos ordenados por el criterio
-    """
-    return 0
+def numero_peliculas(director,datos):
+    r=0
+    numero_peliculas=0
+    lista=[]
+    id_peliculas=[]
+    while r<len(datos):
+        p=datos[r]
+        if p["director_name"]== director:
+            numero_peliculas+=1
+            lista.append(p)
+            id_peliculas.append(p["id"])
+        r+=1
+    return numero_peliculas,lista,id_peliculas
+def votos_media(id_peliculasa,lista):
+    r=0
+    suma=0
+    promedio=0
+    while r<len(lista):
+        p=lista[r]
+        for i in id_peliculasa:
+            if i == p["id"]:
+                suma+=float(p["vote_average"])
+        r+=1
+    if suma > 0:
+        promedio=suma/len(id_peliculasa)
+    return promedio
+        
 
 def main():
     """
@@ -162,10 +149,9 @@ def main():
         inputs =input('Seleccione una opción para continuar\n') #leer opción ingresada
         if len(inputs)>0:
             if int(inputs[0])==1: #opcion 1
-                lista = loadCSVFile("Data/themoviesdb/AllMoviesCastingRaw.csv", lista) #llamar funcion cargar datos
-                print("Datos cargados, ",lista['size']," elementos cargados")
-                print("no tenemos problemas")
+                lista = loadCSVFile("Data/theMoviesdb/SmallMoviesDetailsCleaned.csv") #llamar funcion cargar datos
                 print(lista)
+                print("Datos cargados, ",lista['size']," elementos cargados")
             elif int(inputs[0])==2: #opcion 2
                 if lista==None or lista['size']==0: #obtener la longitud de la lista
                     print("La lista esta vacía")    
@@ -178,29 +164,29 @@ def main():
                     counter=countElementsFilteredByColumn(criteria, "nombre", lista) #filtrar una columna por criterio  
                     print("Coinciden ",counter," elementos con el crtierio: ", criteria  )
             elif int(inputs[0])==4: #opcion 4
-                criteria =input('Ingrese el criterio de búsqueda\n')
-                counter=countElementsByCriteria(criteria,"vote_average",lista_cast, lista_detalles)
-                print("Coinciden ",counter[0]," películas con el criterio : ",criteria)
-                print("El promedio de votación del criterio es de: ",counter[1])
-            elif int(inputs[0])==5: #opcion 5
-                u=-1
-                k=-1
-                while u != 1 and u != 2 :
-                    print("1 para ordenar ascendentemente")
-                    print("2 para ordenar descendente")
-                    ñ=input()
-                    u= int(ñ)
-                while k != 1 and u != 2:
-                    print("")
-                    print("")
-                    r=input()
-                    k=int(r)
-
-            elif int(inputs[0])==6: #opcion 6
+                if lista==None or lista['size']==0: #obtener la longitud de la lista
+                    print("La lista esta vacía")
+                else:
+                    criteria =input('Ingrese el criterio de búsqueda\n')
+                    counter=countElementsByCriteria(criteria,0,lista)
+                    print("Coinciden ",counter," elementos con el crtierio: '", criteria ,"' (en construcción ...)")
+                
+            elif int(inputs[0])==6:
                 print("que director quieres saber mas")
-                p=input()
-                u=loadCSVFile("Data/test.csv")
-                print(u)
+                t=input()
+                u=loadCSVFile("Data/theMoviesdb/MoviesCastingRaw-small.csv")
+                p=u["elements"]
+                e=numero_peliculas(t,p)
+                o=loadCSVFile("Data/theMoviesdb/SmallMoviesDetailsCleaned.csv")
+                y=o["elements"]
+                w=votos_media(e[2],y)
+                print(w)
+                print("el numero de peliculas dirigidas por {0} fueron {1} con un promedio de {2}".format(t,e[0],w))
+                print("la lista de las peliculas dirigidas son {o}")
+                print(e[1])
+                
+                
+            
             elif int(inputs[0])==0: #opcion 0, salir
                 sys.exit(0)
                 
