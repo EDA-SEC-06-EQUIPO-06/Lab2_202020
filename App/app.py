@@ -119,6 +119,32 @@ def orderElementsByCriteria(function, column, lst, elements):
     """
     return 0
 
+def numero_peliculas(director,datos):
+    r=0
+    numero_peliculas=0
+    lista=[]
+    id_peliculas=[]
+    while r<len(datos):
+        p=datos[r]
+        if p["director_name"]== director:
+            numero_peliculas+=1
+            lista.append(p)
+            id_peliculas.append(p["id"])
+        r+=1
+    return numero_peliculas,lista,id_peliculas
+def votos_media(id_peliculasa,lista):
+    r=0
+    suma=0
+    promedio=0
+    while r<len(lista):
+        p=lista[r]
+        for i in id_peliculasa:
+            if i == p["id"]:
+                suma+=float(p["vote_average"])
+        r+=1
+    if suma > 0:
+        promedio=suma/len(id_peliculasa)
+    return promedio
 def main():
     """
     Método principal del programa, se encarga de manejar todos los metodos adicionales creados
@@ -153,6 +179,19 @@ def main():
                     criteria =input('Ingrese el criterio de búsqueda\n')
                     counter=countElementsByCriteria(criteria,0,lista)
                     print("Coinciden ",counter," elementos con el crtierio: '", criteria ,"' (en construcción ...)")
+            elif int(inputs[0])==6:
+                print("que director quieres saber mas")
+                t=input()
+                u=loadCSVFile("Data/theMoviesdb/MoviesCastingRaw-small.csv")
+                p=u["elements"]
+                e=numero_peliculas(t,p)
+                o=loadCSVFile("Data/theMoviesdb/SmallMoviesDetailsCleaned.csv")
+                y=o["elements"]
+                w=votos_media(e[2],y)
+                print(w)
+                print("el numero de peliculas dirigidas por {0} fueron {1} con un promedio de {2}".format(t,e[0],w))
+                print("la lista de las peliculas dirigidas son {o}")
+                print(e[1])
             elif int(inputs[0])==0: #opcion 0, salir
                 sys.exit(0)
                 
