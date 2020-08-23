@@ -100,9 +100,6 @@ def isEmpty (lst):
     except Exception as exp:
         error.reraise (exp, 'arraylist->isEmpty: ')
 
-
-
-
 def size(lst):
     """ Informa el número de elementos de la lista.
 
